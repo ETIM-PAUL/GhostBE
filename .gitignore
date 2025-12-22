@@ -7,3 +7,6 @@ temp/
 package-lock.json
 .env
 .DS_Store
+npm-debug.log
+coverage/
+*.log
