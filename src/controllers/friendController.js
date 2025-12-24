@@ -5,7 +5,7 @@ const logger = require('../utils/logger');
 class FriendController {
   async getUserFriends(req, res, next) {
     try {
-      const { verifiedSigner } = req.params;
+      const { verifiedSigner } = req.verifiedSigner;
       const users = await friendService.getUserFriends(verifiedSigner);
       res.json({ success: true, data: users });
     } catch (error) {
@@ -15,7 +15,7 @@ class FriendController {
 
   async getPendingRequests(req, res, next) {
     try {
-      const { verifiedSigner } = req.params;
+      const { verifiedSigner } = req.verifiedSigner;
       const requests = await friendService.getPendingRequests(verifiedSigner);
       
       if (!requests) {
@@ -33,19 +33,26 @@ class FriendController {
 
   async cancelRequest(req, res, next) {
     try {
-      const { username, email, wallet_address, avatar_url, created_at } = req.body;
-      const user = await userService.createUser(username, email, wallet_address, avatar_url, created_at);
+      const verifiedSigner = req.verifiedSigner;
+      const { signature, message } = req.body;
+      const cancelled = await friendService.cancelRequest(verifiedSigner, signature, message);
       
-      res.status(201).json({ 
+      if (!cancelled) {
+        return res.status(404).json({ 
+          success: false, 
+          error: 'Request not found' 
+        });
+      }
+      
+      res.json({ 
         success: true, 
-        data: user,
-        message: 'User created successfully'
+        message: 'Friend request cancelled successfully'
       });
     } catch (error) {
-      if (error.code === '23505') { // PostgreSQL unique violation
+      if (error.message === 'Mismatch Payload') {
         return res.status(400).json({ 
           success: false, 
-          error: 'Email already exists' 
+          error: 'Mismatch Payload' 
         });
       }
       next(error);
