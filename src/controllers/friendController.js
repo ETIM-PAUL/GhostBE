@@ -1,6 +1,4 @@
 const friendService = require('../services/friendService');
-const userService = require('../services/userService');
-const logger = require('../utils/logger');
 
 class FriendController {
   async getUserFriends(req, res, next) {
