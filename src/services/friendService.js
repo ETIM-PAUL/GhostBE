@@ -35,7 +35,7 @@ class FriendService {
   async getPendingRequests(id) {
     const { data, error } = await supabase
     .from('friend_requests')
-    .select('to_user')
+    .select('id, to_user')
     .eq('from_user', id)
     .eq('status', "pending");
 
@@ -49,7 +49,7 @@ class FriendService {
     return data;
   }
   
-  async cancelRequestOrRemoveFriend(user_id, request_id) {
+  async cancelRequestOrRemoveFriend(caller_id, request_id) {
     const { data, error } = await supabase
     .from('friend_requests')
     .select('to_user')
@@ -59,9 +59,6 @@ class FriendService {
 
     if (!data[0]) {
         throw new Error('Invalid Request');
-    }
-    if (data[0].to_user !== user_id || data[0].from_user !== user_id) {
-        throw new Error('Unauthorized Action');
     }
 
     // 4. Delete the record

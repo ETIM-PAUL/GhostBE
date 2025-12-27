@@ -34,7 +34,7 @@ class FriendController {
 
   async cancelRequest(req, res, next) {
     try { 
-    const { id: caller_id } = req.user;
+        const { id: caller_id } = req.user;
         const { request_id } = req.body;
         await friendService.cancelRequestOrRemoveFriend(caller_id, request_id);
 
